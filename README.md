@@ -3,7 +3,7 @@
 ## What's in side the box
 A NodeJS Lambda function streams a S3 File and then imports it into DynamoDB using the Batch API. 
 
-The full article for this code can be found here -> rehanvdm.comserverless/dynamodb-importer/index.html
+The full article for this code can be found here -> https://www.rehanvdm.com/serverless/dynamodb-importer/index.html
 
 A note on the Environment variables passed to the function: 
 
