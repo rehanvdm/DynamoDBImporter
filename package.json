@@ -1,0 +1,32 @@
+{
+  "name": "DynamoImporter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "generate-data": "node data-generator/generate.js ",
+
+    "_sam_build": "sam build --profile rehan --template app.yaml",
+    "_sam_package": "sam package --profile rehan --output-template-file app-packaged.yaml --s3-bucket rehan-sam-packages-us-east-1 --s3-prefix dynamo-importer",
+    "_sam_deploy": "sam deploy --profile rehan --template-file app-packaged.yaml --stack-name  dynamo-importer-prod --capabilities CAPABILITY_IAM --region us-east-1",
+    "sam_deploy": "npm run _sam_build && npm run _sam_package && npm run _sam_deploy"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.1.1",
+    "mocker-data-generator": "^2.6.6",
+    "nyc": "^13.2.0"
+  },
+  "nyc": {
+    "exclude": [
+      "app-tests"
+    ]
+  },
+  "dependencies": {
+    "aws-sdk": "^2.562.0",
+    "fast-csv": "^3.4.0",
+    "p-limit": "^2.2.1"
+  }
+}

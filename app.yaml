@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A Lamnda to import data from S3 to DynamoDB
+
+Parameters:
+  AppName:
+    Default: dynamo-importer
+    Type: String
+    Description: Name of app
+  AppEnvironment:
+    Default: prod
+    Type: String
+    Description: Environment of this stack
+
+
+Resources:
+  ImportLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Join ['', [!Ref AppName, '-worker-', !Ref AppEnvironment]]
+      MemorySize: 2048
+      Runtime: nodejs8.10
+      CodeUri: app/lambda/importer/
+      Handler: app.handler
+      Timeout: 300
+      Environment:
+        Variables:
+          EXECUTE_LOCAL: false
+          CSV_BUCKET_NAME: !Join ['', [!Ref AppName, '-source-', !Ref AppEnvironment]]
+          CSV_KEY_NAME: "data_s3.csv"
+          DYNAMO_TABLE_NAME: !Join ['', [!Ref AppName, '-table-', !Ref AppEnvironment]]
+          CONCURRENT_BATCH_SUBMITS: 20
+          READ_AHEAD_BATCHES: 40
+          MAX_ROWS_SUBMIT: 10000
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Join ['', [!Ref AppName, '-source-', !Ref AppEnvironment]]
+        - DynamoDBCrudPolicy:
+            TableName: !Join ['', [!Ref AppName, '-table-', !Ref AppEnvironment]]
+      Tags:
+        APPNAME: !Ref AppName
+        ENVIRONMENT: !Ref AppEnvironment
+
+  ImportTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Join ['', [!Ref AppName, '-table-', !Ref AppEnvironment]]
+      PrimaryKey:
+        Name: id
+        Type: String
+      Tags:
+        APPNAME: !Ref AppName
+        ENVIRONMENT: !Ref AppEnvironment
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 40000
+
+  ImportBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join ['', [!Ref AppName, '-source-', !Ref AppEnvironment]]
+      Tags:
+        - Key: "APPNAME"
+          Value: "AppName"
+        - Key: "ENVIRONMENT"
+          Value: "AppEnvironment"
+
+
+
