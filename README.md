@@ -1,5 +1,11 @@
 # DynamoDB Data Importer
 
+------
+
+###  !!! WARNING: This Cloudformation script will launch a DynamoDB table at 40,000 WCU this can be expensive if left for more than an hour !!!
+
+-----
+
 ## What's in side the box
 A NodeJS Lambda function streams a S3 File and then imports it into DynamoDB using the Batch API. 
 
